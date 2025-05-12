@@ -1,16 +1,18 @@
 import re
+
 from language import *
 
+
 def is_var(token):
-    return re.match("^[a-z]+$", token)
+    return re.match(r"^[a-z]+$", token)
 
 
 def is_nat(token):
-    return re.match("^\d+$", token)
+    return re.match(r"^\d+$", token)
 
 
 def is_lambda(token):
-    return re.match("^lambda [a-z]+[.]$", token)
+    return re.match(r"^lambda [a-z]+[.]$", token)
 
 
 def is_term(token):
@@ -56,10 +58,8 @@ def parse_brackets(tokens):
 
 def parse_term(term_str: str):
     term_str = " ".join(term_str.split())
-    
-    
 
-    regex = "lambda [a-z]+[.]|[a-z]+|\d+|[(]|[)]"
+    regex = r"lambda [a-z]+[.]|[a-z]+|\d+|[(]|[)]"
 
     tokens = re.findall(regex, term_str)
 
