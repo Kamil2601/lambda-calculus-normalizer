@@ -185,7 +185,7 @@ def desugar(term: Term):
         zz = Pair(Nat(0), Nat(0))
         ss = Lambda("p", Pair(Snd(Var("p")), Add(Nat(1), Snd(Var("p")))))
         prd = Lambda("m", Fst(App(App(Var("m"), ss), zz)))
-        return desugar(Lambda("m", Lambda("n", App(App(Var("n"), prd), Var("m")))))
+        return desugar(App(App(Lambda("m", Lambda("n", App(App(Var("n"), prd), Var("m")))), term.n), term.m))
     elif isinstance(term, Eq):
         isZero = parse_term("lambda n. n (lambda x. false) true")
         leq = Lambda("m", Lambda("n", App(isZero, Sub(Var("m"), Var("n")))))
