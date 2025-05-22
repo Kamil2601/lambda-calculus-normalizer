@@ -182,17 +182,20 @@ def desugar(term: Term):
         times = parse_term(f"lambda m. lambda n. m ({plus} n) (lambda s. lambda n. n)")
         return App(App (times, desugar(term.n)), desugar(term.m))
     elif isinstance(term, Sub):
-        zz = Pair(Nat(0), Nat(0))
-        ss = Lambda("p", Pair(Snd(Var("p")), Add(Nat(1), Snd(Var("p")))))
-        prd = Lambda("m", Fst(App(App(Var("m"), ss), zz)))
-        return desugar(App(App(Lambda("m", Lambda("n", App(App(Var("n"), prd), Var("m")))), term.n), term.m))
+        zz = desugar(Pair(Nat(0), Nat(0)))
+        ss = desugar(Lambda("p", Pair(Snd(Var("p")), Add(Nat(1), Snd(Var("p"))))))
+        prd = desugar(Lambda("m", Fst(App(App(Var("m"), ss), zz))))
+        n = desugar(term.n)
+        m = desugar(term.m)
+        return App(App(Lambda("m", Lambda("n", App(App(Var("n"), prd), Var("m")))), n), m)
     elif isinstance(term, Eq):
-        isZero = parse_term("lambda n. n (lambda x. false) true")
-        leq = Lambda("m", Lambda("n", App(isZero, Sub(Var("m"), Var("n")))))
+        isZero = desugar(parse_term("lambda n. n (lambda x. false) true"))
+        leq = desugar(Lambda("m", Lambda("n", App(isZero, Sub(Var("m"), Var("n"))))))
         lambda_and = parse_term("lambda p. lambda q. p q p")
         m_leq_n = App(App(leq, Var("m")), Var("n"))
         n_leq_m = App(App(leq, Var("n")), Var("m"))
-        return Lambda("m", Lambda("n", App(App(lambda_and, m_leq_n), n_leq_m)))
+        eq = Lambda("m", Lambda("n", App(App(lambda_and, m_leq_n), n_leq_m)))
+        return App(App(eq, desugar(term.n)), desugar(term.m))
     elif isinstance(term, Tru):
         return Lambda("t", (Lambda("f", Var("t"))))
     elif isinstance(term, Fls):
@@ -237,7 +240,6 @@ def desugar(term: Term):
 
         isnil = parse_term(f"lambda l. l (lambda h. lambda t. {fls}) {tru}")
         return App(isnil, desugar(term.list))
-
 
 def normal_to_deBruijn(term: Term):
     free_vars = {}
